@@ -1,0 +1,181 @@
+
+
+# This code written using Pycharm software with Python language includes the following libraries:
+# PIL, pytesseract, re and datefinder
+
+
+from PIL import Image
+from pytesseract import pytesseract
+import re
+import datefinder
+
+
+#paths to the needed files
+path_to_tesseract = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+image_path = r"C:\Users\hamda\PycharmProjects\pythonProject\OCR.png"
+
+
+#opening the image and resizing it to increase the accuracy of the OCR
+image = Image.open(image_path)
+image = image.resize((600, 650), Image.ANTIALIAS)
+
+
+#extracting the text from the image
+pytesseract.tesseract_cmd = path_to_tesseract
+extract_text = pytesseract.image_to_string(image)
+
+
+#to print the extracted text:
+#print(extract_text[:-1])
+
+
+#renaming the variable
+text = extract_text
+
+
+
+
+#''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#                            Dates:
+#''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+#functions to find dates on the text eather by searching for a date including a written month name or by searching for normal date format (DD/MM/YYYY)
+pattern_find_written_date = r'(\d{1,2} (?:January|February|March|April|May|June|July|August|September|October|November|December) \d{4})'
+pattern_nummerical_date  = r'[\d]{1,2}/[\d]{1,2}/[\d]{4}'
+
+
+#renaming the variables
+pattern_W = pattern_find_written_date
+pattern_N = pattern_nummerical_date
+
+
+#search through the text to find dates
+match_W = re.findall(pattern_W, text)
+match_N = re.findall(pattern_N, text)
+
+
+#to print the dates on their original format
+#print(match_W)
+#print(match_N)
+
+
+#changing the dates format using (datefinder library) then printing them
+print('\n\nDates:')
+for date_W in match_W:
+     dates_W = datefinder.find_dates(date_W)
+     dates_W = list(dates_W)
+     print(dates_W[0].strftime("%Y-%m-%d"))
+
+
+
+
+for date_N in match_N:
+     dates_N = datefinder.find_dates(date_N)
+     dates_N = list(dates_N)
+     print(dates_N[0].strftime("%Y-%m-%d"))
+
+
+
+
+#''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#                            Room Names:
+#''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+#function to find room names by extracting a single word after detecting (Room:) in the text
+pattern_Room_Names = r'Room: ([a-zA-Z]+)'
+
+
+#renaming the variable
+pattern_RN = pattern_Room_Names
+
+
+#search through the text to find room names
+match_RN = re.findall(pattern_RN, text)
+
+
+#printing the names
+print('\n\nRoom Names:')
+for R_names in match_RN:
+    print(R_names)
+
+
+
+
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#                            Room Rates:
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+#function to find the room rates by extracting numbers including dollar symbol after detecting (Rate:)
+pattern_Room_Rates = r'Rate: ([$a-zA-Z0-9]+)'
+
+
+#renaming the variable
+pattern_RR = pattern_Room_Rates
+
+
+#search through the text to find room rates
+match_RR=re.findall(pattern_RR, text)
+
+
+#printing the rates
+print('\n\nRates:')
+for R_rate in match_RR:
+    print(R_rate)
+
+
+
+
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#                            Individual Names:
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+#function to find individual names by extracting anything in between (: or ;) and (<)
+pattern_Individual_Names = r'((?<=[:;]).*?(?=<))'
+
+
+#renaming the variable
+pattern_IN = pattern_Individual_Names
+
+
+#searching for the names through the text
+match_IN = re.findall(pattern_IN, text)
+
+
+#changing the names format by splitting each element from the comma and inverse the two sides, then join it again with the correct format with an additional space as a seperator at the middle
+print('\n\nNames:')
+for I_names in match_IN:
+    I_names = I_names.split(",")
+    I_names = I_names[::-1]
+    joined = "".join(I_names)
+    seperator = " "
+    joined = seperator.join(I_names)
+    print(joined)
+
+
+
+
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#                            Emails:
+# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+#function to find emails by searching for an email format (any letters + @ sign at the middle then any letters ending up by a fullstop + any letters
+pattern_Emails = r'([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)'
+
+
+#renaming the variable
+pattern_E = pattern_Emails
+
+
+#search through the text for emails
+match_E = re.findall(pattern_E, text)
+
+
+#print emails
+print('\n\nEmails:')
+for email in match_E:
+    print(email)
